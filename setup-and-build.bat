@@ -288,57 +288,83 @@ echo.
 ::  5단계: 프로젝트 클론
 :: ─────────────────────────────────────────────
 echo  [5/6] 프로젝트 다운로드...
-
-:: REPO_URL 이 로컬 주소(127.0.0.1/localhost)면 Windows 에서 접근 불가
-:: → 사용자에게 실제 URL 입력받기
-echo !REPO_URL! | findstr /i "127.0.0.1 localhost" >nul
-if !errorlevel! equ 0 (
-    echo.
-    echo  ┌─────────────────────────────────────────────────────────┐
-    echo  │  REPO_URL 이 로컬 서버 주소로 설정되어 있습니다.        │
-    echo  │  Windows 에서는 이 주소에 접근할 수 없습니다.           │
-    echo  └─────────────────────────────────────────────────────────┘
-    echo.
-    echo  아래 중 하나의 URL 을 입력하세요:
-    echo.
-    echo    [GitHub]  https://github.com/사용자명/Schedule
-    echo    [로컬 IP] http://개발서버IP:34429/git/rnjswlsdlf5775-spec/Schedule
-    echo              (개발 서버와 같은 네트워크에 있을 때만 가능)
-    echo.
-    set /p "REPO_URL=  URL 입력 ^> "
-    echo.
-    if "!REPO_URL!"=="" (
-        echo  [오류] URL 을 입력하지 않았습니다.
-        goto :error
-    )
-    echo      사용할 URL: !REPO_URL!
-    echo.
-)
-
 if not exist "%WORK_DIR%" mkdir "%WORK_DIR%"
 
+:: 이미 클론된 경우 pull 후 바로 다음 단계로
 if exist "%WORK_DIR%\%PROJECT_NAME%\.git" (
     echo      기존 폴더 발견. 최신 코드로 업데이트 중...
     pushd "%WORK_DIR%\%PROJECT_NAME%"
     git pull origin "%BRANCH%"
     popd
-) else (
-    echo      %REPO_URL%
-    echo      브랜치: %BRANCH%
+    goto :clone_done
+)
+
+:ask_url
+:: ── 로컬 주소 감지 → URL 입력 요청 ────────────────────────────────────────
+echo !REPO_URL! | findstr /i "127.0.0.1 localhost" >nul
+if !errorlevel! equ 0 (
     echo.
-    git clone --branch "%BRANCH%" "%REPO_URL%" "%WORK_DIR%\%PROJECT_NAME%"
-    if !errorlevel! neq 0 (
-        echo.
-        echo  [오류] 프로젝트 클론 실패.
-        echo.
-        echo  확인 사항:
-        echo    1. REPO_URL 이 올바른지 확인 (스크립트 상단에서 수정)
-        echo    2. 로컬 Gitea 서버라면 해당 서버가 실행 중인지 확인
-        echo    3. 인터넷/네트워크 연결 상태 확인
-        echo    4. Git 인증이 필요한 경우 크리덴셜 입력
+    echo  [!] REPO_URL 이 로컬 서버 주소 (127.0.0.1) 입니다.
+    echo      이 PC 에서는 접근할 수 없습니다.
+    echo.
+    echo  아래 중 하나를 입력하세요:
+    echo.
+    echo    GitHub   : https://github.com/사용자명/Schedule
+    echo    로컬 IP  : http://서버IP:34429/git/rnjswlsdlf5775-spec/Schedule
+    echo               (개발 서버와 같은 네트워크일 때만 가능)
+    echo.
+    set /p "REPO_URL=  URL 입력 > "
+    echo.
+    if "!REPO_URL!"=="" (
+        echo  [오류] URL 을 입력하지 않았습니다.
         goto :error
     )
 )
+
+:: ── 연결 사전 테스트 ────────────────────────────────────────────────────────
+echo      연결 확인 중: !REPO_URL!
+git ls-remote "!REPO_URL!" >nul 2>&1
+if !errorlevel! neq 0 (
+    echo.
+    echo  [!] 서버에 연결할 수 없습니다.
+    echo.
+    echo  주요 원인:
+    echo    - URL 오타  : 주소를 다시 확인하세요
+    echo    - GitHub    : 저장소가 비공개이거나 URL 이 잘못됨
+    echo    - 로컬 IP   : 개발 서버가 꺼져 있거나 방화벽/포트 차단
+    echo    - 인증 필요 : 다음 단계에서 아이디/비밀번호 입력
+    echo.
+    set /p "REPO_RETRY=  다른 URL 로 다시 시도하시겠습니까? (Y/N) > "
+    if /i "!REPO_RETRY!"=="Y" (
+        set /p "REPO_URL=  새 URL 입력 > "
+        echo.
+        goto :ask_url
+    )
+    goto :error
+)
+echo      연결 성공.
+
+:: ── 클론 ────────────────────────────────────────────────────────────────────
+echo.
+echo      클론 중: !REPO_URL!
+echo      브랜치 : %BRANCH%
+echo.
+git clone --branch "%BRANCH%" "!REPO_URL!" "%WORK_DIR%\%PROJECT_NAME%"
+if !errorlevel! neq 0 (
+    echo.
+    echo  [!] 클론 실패.
+    echo      (인증 오류라면 아이디/비밀번호를 확인하세요)
+    echo.
+    set /p "REPO_RETRY=  다른 URL 로 다시 시도하시겠습니까? (Y/N) > "
+    if /i "!REPO_RETRY!"=="Y" (
+        set /p "REPO_URL=  새 URL 입력 > "
+        echo.
+        goto :ask_url
+    )
+    goto :error
+)
+
+:clone_done
 echo      프로젝트 다운로드 완료.
 echo.
 
