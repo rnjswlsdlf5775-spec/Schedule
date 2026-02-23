@@ -289,6 +289,32 @@ echo.
 :: ─────────────────────────────────────────────
 echo  [5/6] 프로젝트 다운로드...
 
+:: REPO_URL 이 로컬 주소(127.0.0.1/localhost)면 Windows 에서 접근 불가
+:: → 사용자에게 실제 URL 입력받기
+echo !REPO_URL! | findstr /i "127.0.0.1 localhost" >nul
+if !errorlevel! equ 0 (
+    echo.
+    echo  ┌─────────────────────────────────────────────────────────┐
+    echo  │  REPO_URL 이 로컬 서버 주소로 설정되어 있습니다.        │
+    echo  │  Windows 에서는 이 주소에 접근할 수 없습니다.           │
+    echo  └─────────────────────────────────────────────────────────┘
+    echo.
+    echo  아래 중 하나의 URL 을 입력하세요:
+    echo.
+    echo    [GitHub]  https://github.com/사용자명/Schedule
+    echo    [로컬 IP] http://개발서버IP:34429/git/rnjswlsdlf5775-spec/Schedule
+    echo              (개발 서버와 같은 네트워크에 있을 때만 가능)
+    echo.
+    set /p "REPO_URL=  URL 입력 ^> "
+    echo.
+    if "!REPO_URL!"=="" (
+        echo  [오류] URL 을 입력하지 않았습니다.
+        goto :error
+    )
+    echo      사용할 URL: !REPO_URL!
+    echo.
+)
+
 if not exist "%WORK_DIR%" mkdir "%WORK_DIR%"
 
 if exist "%WORK_DIR%\%PROJECT_NAME%\.git" (
