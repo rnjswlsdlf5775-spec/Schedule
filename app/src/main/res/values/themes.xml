@@ -17,8 +17,7 @@
         <item name="android:navigationBarColor">?attr/colorSurface</item>
     </style>
 
-    <style name="Theme.Schedule.NoActionBar">
-        <parent>Theme.Schedule</parent>
+    <style name="Theme.Schedule.NoActionBar" parent="Theme.Schedule">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
