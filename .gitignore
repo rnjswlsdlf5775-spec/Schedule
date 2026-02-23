@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+*.apk
+*.ap_
+*.aab
+
+# Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+captures/
+.externalNativeBuild
+.cxx/
+
+# Local properties
+local.properties
+
+# Build outputs
+app/release/
+app/debug/
+
+# NDK
+obj/
+
+# Android Profiler
+*.trace
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
