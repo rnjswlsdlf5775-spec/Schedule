@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">스케줄 관리</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">오늘</string>
+    <string name="nav_calendar">달력</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- Common -->
+    <string name="save">저장</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+    <string name="edit">수정</string>
+    <string name="close">닫기</string>
+
+    <!-- Schedule -->
+    <string name="add_schedule">일정 추가</string>
+    <string name="edit_schedule">일정 수정</string>
+    <string name="schedule_title">제목</string>
+    <string name="schedule_description">설명 (선택사항)</string>
+    <string name="schedule_date">날짜</string>
+    <string name="schedule_start_time">시작 시간</string>
+    <string name="schedule_end_time">종료 시간</string>
+    <string name="all_day">하루 종일</string>
+    <string name="alarm">알람</string>
+    <string name="category_color">카테고리 색상</string>
+    <string name="empty_schedules">일정이 없습니다</string>
+
+    <!-- Task -->
+    <string name="add_task">할 일 추가</string>
+    <string name="task_title">할 일 제목</string>
+    <string name="task_description">메모 (선택사항)</string>
+    <string name="empty_tasks">오늘 할 일이 없습니다</string>
+
+    <!-- Settings -->
+    <string name="settings">설정</string>
+    <string name="theme_settings">테마 설정</string>
+    <string name="theme_system">시스템 기본값</string>
+    <string name="theme_light">라이트 모드</string>
+    <string name="theme_dark">다크 모드</string>
+
+    <!-- Alarm -->
+    <string name="alarm_no">알람 없음</string>
+    <string name="alarm_at_time">정시</string>
+    <string name="alarm_5min">5분 전</string>
+    <string name="alarm_10min">10분 전</string>
+    <string name="alarm_15min">15분 전</string>
+    <string name="alarm_30min">30분 전</string>
+    <string name="alarm_1hour">1시간 전</string>
+
+    <!-- Priority -->
+    <string name="priority_low">낮음</string>
+    <string name="priority_medium">보통</string>
+    <string name="priority_high">높음</string>
+
+    <!-- Confirm -->
+    <string name="confirm_delete_schedule">이 일정을 삭제하시겠습니까?</string>
+    <string name="confirm_delete_task">이 할 일을 삭제하시겠습니까?</string>
+</resources>

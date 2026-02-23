@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_today">
+
+    <fragment
+        android:id="@+id/navigation_today"
+        android:name="com.schedule.app.ui.today.TodayFragment"
+        android:label="오늘 할 일" />
+
+    <fragment
+        android:id="@+id/navigation_calendar"
+        android:name="com.schedule.app.ui.calendar.CalendarFragment"
+        android:label="달력" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.schedule.app.ui.settings.SettingsFragment"
+        android:label="설정" />
+
+</navigation>

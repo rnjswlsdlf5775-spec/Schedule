@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Title Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="제목 *"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Description Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="설명 (선택사항)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:maxLines="4" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Date Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="날짜"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:icon="@drawable/ic_calendar_small" />
+
+            <!-- All Day Switch -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="하루 종일"
+                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_all_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <!-- Start Time -->
+            <LinearLayout
+                android:id="@+id/layout_start_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="시작 시간"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="시간 선택"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:icon="@drawable/ic_time" />
+
+            </LinearLayout>
+
+            <!-- End Time -->
+            <LinearLayout
+                android:id="@+id/layout_end_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="종료 시간"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_end_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="시간 선택"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:icon="@drawable/ic_time" />
+
+            </LinearLayout>
+
+            <!-- Alarm Setting -->
+            <LinearLayout
+                android:id="@+id/layout_alarm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="알람"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_alarm"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background" />
+
+            </LinearLayout>
+
+            <!-- Category Color -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="카테고리 색상"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spinner_color"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/spinner_background" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Bottom Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:background="?attr/colorSurface">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="삭제"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeColor="@color/error_red" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="저장" />
+
+    </LinearLayout>
+
+</LinearLayout>

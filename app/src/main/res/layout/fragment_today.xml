@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Date Header -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="2dp"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tv_today_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="오늘"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:id="@+id/layout_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 / 0 완료"
+                        android:textSize="13sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginBottom="4dp"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/progress_bar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:trackCornerRadius="4dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/tv_empty_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="오늘 할 일이 없습니다.\n+ 버튼으로 추가해보세요!"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginTop="60dp"
+            android:visibility="gone" />
+
+        <!-- Task List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="72dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="할 일 추가"
+        app:srcCompat="@drawable/ic_add" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

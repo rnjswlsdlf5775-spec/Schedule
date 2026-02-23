@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Calendar -->
+        <CalendarView
+            android:id="@+id/calendar_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:firstDayOfWeek="1" />
+
+        <!-- Selected Date Label -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            app:cardElevation="1dp"
+            app:cardCornerRadius="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_selected_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/tv_empty_schedules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="이 날의 일정이 없습니다."
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:padding="16dp"
+            android:visibility="gone" />
+
+        <!-- Schedule List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_schedules"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="72dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_schedule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="일정 추가"
+        app:srcCompat="@drawable/ic_add" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

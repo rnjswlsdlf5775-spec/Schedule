@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Schedule" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_dark</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Window background -->
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+    </style>
+
+    <style name="Theme.Schedule.NoActionBar">
+        <parent>Theme.Schedule</parent>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
