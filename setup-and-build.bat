@@ -144,30 +144,54 @@ if exist "%ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat" (
 )
 
 echo      Android cmdline-tools 다운로드 중 (약 100MB)...
+echo      URL: %CMDLINE_TOOLS_URL%
+echo.
+if not exist "%ANDROID_SDK_ROOT%" mkdir "%ANDROID_SDK_ROOT%"
 if not exist "%ANDROID_SDK_ROOT%\cmdline-tools" mkdir "%ANDROID_SDK_ROOT%\cmdline-tools"
 
 set "TOOLS_ZIP=%TEMP%\cmdline-tools.zip"
 set "TOOLS_EXTRACT=%TEMP%\cmdline-tools-extract"
 
-powershell -NoProfile -Command ^
-    "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-    "Write-Host '      다운로드 중...'; " ^
-    "(New-Object Net.WebClient).DownloadFile('%CMDLINE_TOOLS_URL%', '%TOOLS_ZIP%')"
+:: 진행 바 표시하며 다운로드 (Invoke-WebRequest 사용)
+powershell -NoProfile -Command " ^
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
+    $url = '%CMDLINE_TOOLS_URL%'; ^
+    $dest = '%TOOLS_ZIP%'; ^
+    $wc = New-Object System.Net.WebClient; ^
+    $wc.add_DownloadProgressChanged({ ^
+        $pct = $_.ProgressPercentage; ^
+        $recv = [math]::Round($_.BytesReceived/1MB,1); ^
+        $total = [math]::Round($_.TotalBytesToReceive/1MB,1); ^
+        Write-Host \"`r      진행: $pct%% ($recv MB / $total MB)\" -NoNewline ^
+    }); ^
+    $wc.DownloadFileAsync([Uri]$url, $dest); ^
+    while ($wc.IsBusy) { Start-Sleep -Milliseconds 100 }; ^
+    Write-Host '' ^
+"
 
 if !errorlevel! neq 0 (
     echo  [오류] cmdline-tools 다운로드 실패. 인터넷 연결을 확인하세요.
     goto :error
 )
+echo      다운로드 완료.
 
 echo      압축 해제 중...
 if exist "%TOOLS_EXTRACT%" rd /s /q "%TOOLS_EXTRACT%"
 powershell -NoProfile -Command "Expand-Archive -Path '%TOOLS_ZIP%' -DestinationPath '%TOOLS_EXTRACT%' -Force"
+if !errorlevel! neq 0 (
+    echo  [오류] 압축 해제 실패
+    goto :error
+)
+echo      압축 해제 완료.
 
 :: sdkmanager 는 cmdline-tools\latest 위치에 있어야 함
+echo      파일 배치 중...
 if exist "%ANDROID_SDK_ROOT%\cmdline-tools\latest" rd /s /q "%ANDROID_SDK_ROOT%\cmdline-tools\latest"
 move "%TOOLS_EXTRACT%\cmdline-tools" "%ANDROID_SDK_ROOT%\cmdline-tools\latest" >nul 2>&1
 if !errorlevel! neq 0 (
     echo  [오류] cmdline-tools 이동 실패
+    echo      원본: %TOOLS_EXTRACT%\cmdline-tools
+    echo      대상: %ANDROID_SDK_ROOT%\cmdline-tools\latest
     goto :error
 )
 
@@ -175,20 +199,77 @@ del /q "%TOOLS_ZIP%" 2>nul
 rd /s /q "%TOOLS_EXTRACT%" 2>nul
 
 echo      cmdline-tools 설치 완료.
+echo.
 
 :install_sdk_packages
-echo      SDK 패키지 설치 중 (platform-tools, build-tools, android-34)...
 set "SDKMANAGER=%ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat"
 
-:: 라이선스 자동 동의
-echo y | "%SDKMANAGER%" --licenses >nul 2>&1
-
-call "%SDKMANAGER%" --install "platform-tools" "platforms;android-34" "build-tools;34.0.0" >nul 2>&1
-if !errorlevel! neq 0 (
-    echo  [오류] SDK 패키지 설치 실패
+:: Java 경로가 sdkmanager 에 필요 - JAVA_HOME 확인
+if not defined JAVA_HOME (
+    echo  [오류] JAVA_HOME 이 설정되지 않아 sdkmanager 를 실행할 수 없습니다.
+    echo      Java 17 설치 후 JAVA_HOME 환경 변수를 먼저 설정하세요.
     goto :error
 )
-echo      SDK 패키지 설치 완료.
+
+:: ── 라이선스 파일 직접 생성 (sdkmanager --licenses 대신 사용) ──────────────
+:: sdkmanager --licenses 는 수십 번 y 입력이 필요하고 자주 멈춤.
+:: 공식 라이선스 해시를 파일로 직접 만들면 동의 단계를 건너뜀.
+echo      라이선스 파일 생성 중...
+if not exist "%ANDROID_SDK_ROOT%\licenses" mkdir "%ANDROID_SDK_ROOT%\licenses"
+
+:: android-sdk-license
+(
+    echo 24333f8a63b6825ea9c5514f83c2829b004d1fee
+    echo 8933bad161af4178b1185d1a37fbf41ea5269c55
+    echo d56f5187479451eabf01fb78af6dfcb131a6481e
+) > "%ANDROID_SDK_ROOT%\licenses\android-sdk-license"
+
+:: android-sdk-preview-license
+(
+    echo 84831b9409646a918e30573bab4c9c91346d8abd
+) > "%ANDROID_SDK_ROOT%\licenses\android-sdk-preview-license"
+
+:: intel-android-extra-license
+(
+    echo d975f751698a77b662f1254ddbeed3901e976f5a
+) > "%ANDROID_SDK_ROOT%\licenses\intel-android-extra-license"
+
+:: google-gdk-license
+(
+    echo 33b6a2b64607f11b759f320ef9dff4ae5c47d97a
+) > "%ANDROID_SDK_ROOT%\licenses\google-gdk-license"
+
+echo      라이선스 동의 완료.
+echo.
+
+:: ── SDK 패키지 개별 설치 (진행 상황 표시) ───────────────────────────────────
+echo      [SDK 1/3] platform-tools (adb, fastboot) 설치 중...
+call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "platform-tools"
+if !errorlevel! neq 0 (
+    echo  [오류] platform-tools 설치 실패
+    goto :error
+)
+echo      [SDK 1/3] platform-tools 완료.
+echo.
+
+echo      [SDK 2/3] Android 34 플랫폼 설치 중 (약 60MB)...
+call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "platforms;android-34"
+if !errorlevel! neq 0 (
+    echo  [오류] platforms;android-34 설치 실패
+    goto :error
+)
+echo      [SDK 2/3] Android 34 플랫폼 완료.
+echo.
+
+echo      [SDK 3/3] Build-Tools 34.0.0 설치 중...
+call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "build-tools;34.0.0"
+if !errorlevel! neq 0 (
+    echo  [오류] build-tools;34.0.0 설치 실패
+    goto :error
+)
+echo      [SDK 3/3] Build-Tools 완료.
+echo.
+echo      Android SDK 패키지 설치 완료.
 
 :sdk_done
 echo.
