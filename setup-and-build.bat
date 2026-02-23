@@ -152,22 +152,9 @@ if not exist "%ANDROID_SDK_ROOT%\cmdline-tools" mkdir "%ANDROID_SDK_ROOT%\cmdlin
 set "TOOLS_ZIP=%TEMP%\cmdline-tools.zip"
 set "TOOLS_EXTRACT=%TEMP%\cmdline-tools-extract"
 
-:: 진행 바 표시하며 다운로드 (Invoke-WebRequest 사용)
-powershell -NoProfile -Command " ^
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
-    $url = '%CMDLINE_TOOLS_URL%'; ^
-    $dest = '%TOOLS_ZIP%'; ^
-    $wc = New-Object System.Net.WebClient; ^
-    $wc.add_DownloadProgressChanged({ ^
-        $pct = $_.ProgressPercentage; ^
-        $recv = [math]::Round($_.BytesReceived/1MB,1); ^
-        $total = [math]::Round($_.TotalBytesToReceive/1MB,1); ^
-        Write-Host \"`r      진행: $pct%% ($recv MB / $total MB)\" -NoNewline ^
-    }); ^
-    $wc.DownloadFileAsync([Uri]$url, $dest); ^
-    while ($wc.IsBusy) { Start-Sleep -Milliseconds 100 }; ^
-    Write-Host '' ^
-"
+:: WebClient 로 직접 다운로드 (단일 라인 - ^ 줄 연속 오류 방지)
+echo      잠시 기다려주세요 (네트워크 속도에 따라 수 분 소요)...
+powershell -NoProfile -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;(New-Object Net.WebClient).DownloadFile('%CMDLINE_TOOLS_URL%','%TOOLS_ZIP%')"
 
 if !errorlevel! neq 0 (
     echo  [오류] cmdline-tools 다운로드 실패. 인터넷 연결을 확인하세요.
@@ -238,21 +225,9 @@ echo      [SDK 1/3] platform-tools 직접 다운로드 중 (adb, fastboot 포함
 set "PT_URL=https://dl.google.com/android/repository/platform-tools-latest-windows.zip"
 set "PT_ZIP=%TEMP%\platform-tools.zip"
 
-powershell -NoProfile -Command " ^
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
-    $url = '%PT_URL%'; ^
-    $dest = '%PT_ZIP%'; ^
-    $wc = New-Object System.Net.WebClient; ^
-    $wc.add_DownloadProgressChanged({ ^
-        $pct = $_.ProgressPercentage; ^
-        $recv = [math]::Round($_.BytesReceived/1MB,1); ^
-        $total = [math]::Round($_.TotalBytesToReceive/1MB,1); ^
-        Write-Host \"`r        진행: $pct%% ($recv MB / $total MB)\" -NoNewline ^
-    }); ^
-    $wc.DownloadFileAsync([Uri]$url, $dest); ^
-    while ($wc.IsBusy) { Start-Sleep -Milliseconds 100 }; ^
-    Write-Host '' ^
-"
+:: WebClient 로 직접 다운로드 (단일 라인 - ^ 줄 연속 오류 방지)
+echo      잠시 기다려주세요 (네트워크 속도에 따라 수 분 소요)...
+powershell -NoProfile -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;(New-Object Net.WebClient).DownloadFile('%PT_URL%','%PT_ZIP%')"
 if !errorlevel! neq 0 (
     echo  [오류] platform-tools 다운로드 실패. 인터넷 연결을 확인하세요.
     goto :error
