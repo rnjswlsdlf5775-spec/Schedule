@@ -211,63 +211,85 @@ if not defined JAVA_HOME (
     goto :error
 )
 
-:: ── 라이선스 파일 직접 생성 (sdkmanager --licenses 대신 사용) ──────────────
-:: sdkmanager --licenses 는 수십 번 y 입력이 필요하고 자주 멈춤.
-:: 공식 라이선스 해시를 파일로 직접 만들면 동의 단계를 건너뜀.
+:: sdkmanager 네트워크 타임아웃 설정
+:: - "Fetch remote repository" 에서 멈히는 것 방지
+:: - connectTimeout 30초, readTimeout 120초
+set "JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1.2,TLSv1.3 -Dsun.net.client.defaultConnectTimeout=30000 -Dsun.net.client.defaultReadTimeout=120000"
+
+:: ── 라이선스 파일 직접 생성 ─────────────────────────────────────────────────
 echo      라이선스 파일 생성 중...
 if not exist "%ANDROID_SDK_ROOT%\licenses" mkdir "%ANDROID_SDK_ROOT%\licenses"
-
-:: android-sdk-license
 (
     echo 24333f8a63b6825ea9c5514f83c2829b004d1fee
     echo 8933bad161af4178b1185d1a37fbf41ea5269c55
     echo d56f5187479451eabf01fb78af6dfcb131a6481e
 ) > "%ANDROID_SDK_ROOT%\licenses\android-sdk-license"
-
-:: android-sdk-preview-license
-(
-    echo 84831b9409646a918e30573bab4c9c91346d8abd
-) > "%ANDROID_SDK_ROOT%\licenses\android-sdk-preview-license"
-
-:: intel-android-extra-license
-(
-    echo d975f751698a77b662f1254ddbeed3901e976f5a
-) > "%ANDROID_SDK_ROOT%\licenses\intel-android-extra-license"
-
-:: google-gdk-license
-(
-    echo 33b6a2b64607f11b759f320ef9dff4ae5c47d97a
-) > "%ANDROID_SDK_ROOT%\licenses\google-gdk-license"
-
+(echo 84831b9409646a918e30573bab4c9c91346d8abd) > "%ANDROID_SDK_ROOT%\licenses\android-sdk-preview-license"
+(echo d975f751698a77b662f1254ddbeed3901e976f5a) > "%ANDROID_SDK_ROOT%\licenses\intel-android-extra-license"
+(echo 33b6a2b64607f11b759f320ef9dff4ae5c47d97a) > "%ANDROID_SDK_ROOT%\licenses\google-gdk-license"
 echo      라이선스 동의 완료.
 echo.
 
-:: ── SDK 패키지 개별 설치 (진행 상황 표시) ───────────────────────────────────
-echo      [SDK 1/3] platform-tools (adb, fastboot) 설치 중...
-call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "platform-tools"
+:: ── [SDK 1/3] platform-tools: 직접 ZIP 다운로드 (Fetch remote 멈춤 완전 우회) ──
+:: sdkmanager 는 설치 전 Google 서버에서 패키지 목록 XML 을 가져오는데,
+:: 방화벽/TLS 문제로 이 단계에서 자주 멈춤.
+:: platform-tools 는 Google 이 제공하는 고정 URL 이 있으므로 직접 다운로드.
+echo      [SDK 1/3] platform-tools 직접 다운로드 중 (adb, fastboot 포함)...
+set "PT_URL=https://dl.google.com/android/repository/platform-tools-latest-windows.zip"
+set "PT_ZIP=%TEMP%\platform-tools.zip"
+
+powershell -NoProfile -Command " ^
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ^
+    $url = '%PT_URL%'; ^
+    $dest = '%PT_ZIP%'; ^
+    $wc = New-Object System.Net.WebClient; ^
+    $wc.add_DownloadProgressChanged({ ^
+        $pct = $_.ProgressPercentage; ^
+        $recv = [math]::Round($_.BytesReceived/1MB,1); ^
+        $total = [math]::Round($_.TotalBytesToReceive/1MB,1); ^
+        Write-Host \"`r        진행: $pct%% ($recv MB / $total MB)\" -NoNewline ^
+    }); ^
+    $wc.DownloadFileAsync([Uri]$url, $dest); ^
+    while ($wc.IsBusy) { Start-Sleep -Milliseconds 100 }; ^
+    Write-Host '' ^
+"
 if !errorlevel! neq 0 (
-    echo  [오류] platform-tools 설치 실패
+    echo  [오류] platform-tools 다운로드 실패. 인터넷 연결을 확인하세요.
+    goto :error
+)
+
+if exist "%ANDROID_SDK_ROOT%\platform-tools" rd /s /q "%ANDROID_SDK_ROOT%\platform-tools"
+powershell -NoProfile -Command "Expand-Archive -Path '%PT_ZIP%' -DestinationPath '%ANDROID_SDK_ROOT%' -Force"
+del /q "%PT_ZIP%" 2>nul
+if not exist "%ANDROID_SDK_ROOT%\platform-tools\adb.exe" (
+    echo  [오류] platform-tools 압축 해제 실패
     goto :error
 )
 echo      [SDK 1/3] platform-tools 완료.
 echo.
 
+:: ── [SDK 2/3] android-34 플랫폼 ─────────────────────────────────────────────
+:: sdkmanager 사용. --no_https 로 HTTP 강제, --verbose 로 진행 상황 표시.
 echo      [SDK 2/3] Android 34 플랫폼 설치 중 (약 60MB)...
-call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "platforms;android-34"
+echo      (sdkmanager 가 패키지 목록을 가져오는 중 잠시 대기할 수 있습니다)
+call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" --no_https --verbose "platforms;android-34"
 if !errorlevel! neq 0 (
     echo  [오류] platforms;android-34 설치 실패
+    echo      sdkmanager 로그를 확인하거나 인터넷 연결 상태를 점검하세요.
     goto :error
 )
 echo      [SDK 2/3] Android 34 플랫폼 완료.
 echo.
 
+:: ── [SDK 3/3] build-tools 34.0.0 ────────────────────────────────────────────
 echo      [SDK 3/3] Build-Tools 34.0.0 설치 중...
-call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" "build-tools;34.0.0"
+echo      (sdkmanager 가 패키지 목록을 가져오는 중 잠시 대기할 수 있습니다)
+call "%SDKMANAGER%" --sdk_root="%ANDROID_SDK_ROOT%" --no_https --verbose "build-tools;34.0.0"
 if !errorlevel! neq 0 (
     echo  [오류] build-tools;34.0.0 설치 실패
     goto :error
 )
-echo      [SDK 3/3] Build-Tools 완료.
+echo      [SDK 3/3] Build-Tools 34.0.0 완료.
 echo.
 echo      Android SDK 패키지 설치 완료.
 
