@@ -395,8 +395,20 @@ if not exist "gradlew.bat" (
 
 echo      의존성 다운로드 및 빌드 중 (처음 실행 시 5~10분 소요)...
 echo.
+
+:: 기존 APK 삭제 (빌드 성공 여부를 APK 존재로 판단하기 위해)
+if exist "app\build\outputs\apk\debug\app-debug.apk" (
+    del /f /q "app\build\outputs\apk\debug\app-debug.apk" 2>nul
+)
+
 call gradlew.bat assembleDebug
-if !errorlevel! neq 0 (
+set GRADLE_EXIT=!errorlevel!
+
+:: APK 존재 여부로 최종 판단
+:: (Windows 에서 call gradlew.bat 의 exit code 전달이 불안정한 경우를 대비)
+if exist "app\build\outputs\apk\debug\app-debug.apk" goto :build_success
+
+if !GRADLE_EXIT! neq 0 (
     echo.
     echo  [오류] Gradle 빌드 실패.
     echo.
@@ -407,6 +419,8 @@ if !errorlevel! neq 0 (
     popd
     goto :error
 )
+
+:build_success
 
 popd
 

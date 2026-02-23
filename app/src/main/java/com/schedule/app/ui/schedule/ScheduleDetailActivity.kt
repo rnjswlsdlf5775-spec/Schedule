@@ -2,6 +2,7 @@ package com.schedule.app.ui.schedule
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -73,7 +74,12 @@ class ScheduleDetailActivity : AppCompatActivity() {
     }
 
     private fun loadIntentData() {
-        existingSchedule = intent.getParcelableExtra(EXTRA_SCHEDULE)
+        existingSchedule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(EXTRA_SCHEDULE, Schedule::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_SCHEDULE)
+        }
         val dateStr = intent.getStringExtra(EXTRA_DATE)
 
         if (existingSchedule != null) {

@@ -95,7 +95,7 @@ class CalendarFragment : Fragment() {
                 if (schedules.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        viewModel.markedDates.observe(viewLifecycleOwner) { dates ->
+        viewModel.markedDates.observe(viewLifecycleOwner) { _ ->
             // Calendar dots for dates with schedules handled by custom view
         }
     }

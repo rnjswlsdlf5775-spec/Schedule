@@ -49,7 +49,6 @@ class TodayFragment : Fragment() {
     }
 
     private fun setupDateHeader() {
-        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 (EEEE)")
         binding.tvTodayDate.text = today.format(
             DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
         )
