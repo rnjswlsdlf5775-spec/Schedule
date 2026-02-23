@@ -375,10 +375,22 @@ echo  [6/6] APK 빌드 시작...
 pushd "%WORK_DIR%\%PROJECT_NAME%"
 
 if not exist "gradlew.bat" (
-    echo  [오류] gradlew.bat 파일을 찾을 수 없습니다.
-    echo      프로젝트가 올바르게 다운로드 되었는지 확인하세요.
-    popd
-    goto :error
+    echo  [!] gradlew.bat 이 없습니다. Gradle Wrapper 를 winget 으로 설치 후 생성합니다...
+    winget install -e --id Gradle.Gradle --silent --accept-package-agreements --accept-source-agreements
+    :: PATH 에 Gradle 추가 (winget 설치 직후 경로가 반영 안 될 수 있음)
+    for /d %%d in ("C:\Program Files\Gradle\gradle-*") do (
+        if exist "%%d\bin\gradle.bat" set "PATH=%PATH%;%%d\bin"
+    )
+    gradle wrapper --gradle-version 8.0 >nul 2>&1
+    if not exist "gradlew.bat" (
+        echo  [오류] gradlew.bat 생성 실패.
+        echo      다음 중 하나를 시도하세요:
+        echo    1. Android Studio 에서 프로젝트를 열면 자동으로 생성됩니다.
+        echo    2. Gradle 공식 사이트에서 수동 설치: https://gradle.org/install
+        popd
+        goto :error
+    )
+    echo      gradlew.bat 생성 완료.
 )
 
 echo      의존성 다운로드 및 빌드 중 (처음 실행 시 5~10분 소요)...
